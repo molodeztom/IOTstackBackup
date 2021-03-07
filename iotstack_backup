@@ -1,5 +1,9 @@
 #!/bin/bash
-
+# Ver 0.1 forked from Paraphraser IOTBACKUP do not use SCP and RSYNC
+# 0.2 added combine to one tar file with datetime
+# 0.3 + upload to Dropbox
+# 0.4 c only upload new files
+# 0.5 + delete backups
 # should not run as root
 [ "$EUID" -eq 0 ] && echo "This script should NOT be run using sudo" && exit -1
 
@@ -25,7 +29,7 @@ SCPPATH="/path/to/backup/directory/on/myhost"
 # The essential difference is that RSYNC will result in old backups
 # being removed from the target whereas, with SCP, old backups will be
 # preserved until you take some action to remove them.
-BACKUP_METHOD="SCP"
+BACKUP_METHOD="DROPB"
 
 # assumptions
 IOTSTACK="$HOME/IOTstack"
@@ -70,9 +74,8 @@ iotstack_backup_influxdb "$BACKUPS" "$RUNTAG"
 # copy the files (keep in mind that log entries written after the
 # log is copied to the remote will only be in the local log).
 case "$BACKUP_METHOD" in
-
   "SCP")
-    scp "$RUNTAG".* $SCPUSER@$SCPHOST:$SCPPATH
+    #scp "$RUNTAG".* $SCPUSER@$SCPHOST:$SCPPATH
     ;;
 
   "RSYNC")
@@ -80,6 +83,16 @@ case "$BACKUP_METHOD" in
     rsync -vrt --delete --exclude=influxdb "$BACKUPS"/ $SCPUSER@$SCPHOST:$SCPPATH
     ;;
 
+  "DROPB")
+    # all files in one tar archive with date time
+    echo "Dropbox Backup"
+    cd  ~/IOTstack/backups
+    tar --exclude='./archive' --exclude='./influxdb' -cf ./archive/$RUNTAG.FullBackup.tar .
+    cd  ~/IOTstack/backups/archive
+    ~/Dropbox-Uploader/dropbox_uploader.sh -s upload * /
+    rm ~/IOTstack/backups/*backup*
+    rm -rf influxdb    
+    ;;
   *)
     echo "Warning: $BACKUP_METHOD backup method is not supported"
     echo "Warning: The only backup files are the ones in $BACKUPS"
