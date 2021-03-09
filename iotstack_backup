@@ -4,6 +4,9 @@
 # 0.3 + upload to Dropbox
 # 0.4 c only upload new files
 # 0.5 + delete backups
+# 0.6 + encryption
+# 0.7 + move archives to old to copy only last to dropbox
+# 0.9 + retain last 8 backups only
 # should not run as root
 [ "$EUID" -eq 0 ] && echo "This script should NOT be run using sudo" && exit -1
 
@@ -66,10 +69,10 @@ exec 2>> "$LOGFILE"
 echo "----- Starting $SCRIPT at $(date) -----"
 
 # perform the general backup
-iotstack_backup_general "$BACKUPS" "$RUNTAG"
+~/IOTstackBackup/iotstack_backup_general "$BACKUPS" "$RUNTAG"
 
 # perform the influx backup
-iotstack_backup_influxdb "$BACKUPS" "$RUNTAG"
+~/IOTstackBackup/iotstack_backup_influxdb "$BACKUPS" "$RUNTAG"
 
 # copy the files (keep in mind that log entries written after the
 # log is copied to the remote will only be in the local log).
@@ -87,12 +90,17 @@ case "$BACKUP_METHOD" in
     # all files in one tar archive with date time
     echo "Dropbox Backup"
     cd  ~/IOTstack/backups
-    tar --exclude='./archive' --exclude='./influxdb' -cf ./archive/$RUNTAG.FullBackup.tar .
+    tar --exclude='./archive' --exclude='./archive_old' --exclude='./influxdb' -cf ./archive/$RUNTAG.FullBackup.tar .
+    echo "encrypt archive"
     cd  ~/IOTstack/backups/archive
+    gpg -c --passphrase-file /home/pi/user/pass --pinentry-mode loopback $RUNTAG.FullBackup.tar
     ~/Dropbox-Uploader/dropbox_uploader.sh -s upload * /
+    mv -f ~/IOTstack/backups/archive/* /home/pi/IOTstack/backups/archive_old/
     rm ~/IOTstack/backups/*backup*
-    rm -rf influxdb    
-    ;;
+    #to change backups retained,  change below +8 to whatever you want (days retained +1)
+    ls -t1 ~/IOTstack/backups/archive_old* | tail -n +2 | sudo xargs rm -f
+    
+;;
   *)
     echo "Warning: $BACKUP_METHOD backup method is not supported"
     echo "Warning: The only backup files are the ones in $BACKUPS"
