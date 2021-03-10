@@ -9,6 +9,7 @@ If you want to use encryption you have to set up gpg first. You can write the pa
 If you do not want encryption simply delete the line with gpg -c --passphrase-file /home/pi/user/pass --pinentry-mode loopback $RUNTAG.FullBackup.tar
 
 The structure of backup folders is:
+
 IOTSTACK-backups
               - archive (used temporarily as source for upload)
               - arvive_old n backups configurable in script
