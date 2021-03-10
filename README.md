@@ -12,6 +12,6 @@ The structure of backup folders is:
 
 IOTSTACK-backups
               - archive (used temporarily as source for upload)
-              - arvive_old n backups configurable in script
-              - influxdb influxdb backup merged (tar) into "backup".tar
+              - archive_old n backups configurable in script
+              - influxdb influxdb backup merged (tar) into "backup".tar (will be deleted after backup complete)
 
