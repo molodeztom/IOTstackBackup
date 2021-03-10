@@ -8,3 +8,9 @@ I am not an expert with linux nor bash programming. Some lines and ideas are fro
 If you want to use encryption you have to set up gpg first. You can write the passphrase into a file so it will not ask.
 If you do not want encryption simply delete the line with gpg -c --passphrase-file /home/pi/user/pass --pinentry-mode loopback $RUNTAG.FullBackup.tar
 
+The structure of backup folders is:
+IOTSTACK-backups
+              - archive (used temporarily as source for upload)
+              - arvive_old n backups configurable in script
+              - influxdb influxdb backup merged (tar) into "backup".tar
+
