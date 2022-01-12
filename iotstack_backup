@@ -7,9 +7,12 @@
 # 0.6 + encryption
 # 0.7 + move archives to old to copy only last to dropbox
 # 0.9 + retain last 8 backups only
+<<<<<<< HEAD
 # 0.10 c temporarily dropbox deactivated, remove .tar file before mv to archive so .tar file does not count in number of retained files
 # 0.11 c fetch backups from Blinki using scp 
 
+=======
+>>>>>>> 983416d502fd21b9364f78012e3abd308414c19f
 # should not run as root
 [ "$EUID" -eq 0 ] && echo "This script should NOT be run using sudo" && exit -1
 
@@ -78,14 +81,21 @@ echo "----- Starting $SCRIPT at $(date) -----"
 
 # perform the influx backup
 ~/IOTstackBackup/iotstack_backup_influxdb "$BACKUPS" "$RUNTAG"
+<<<<<<< HEAD
 echo "------- End Backup scripts"
+=======
+>>>>>>> 983416d502fd21b9364f78012e3abd308414c19f
 
 # copy the files (keep in mind that log entries written after the
 # log is copied to the remote will only be in the local log).
 case "$BACKUP_METHOD" in
   "SCP")
+<<<<<<< HEAD
    echo "SCP  Backup"    
    scp "$RUNTAG".* $SCPUSER@$SCPHOST:$SCPPATH
+=======
+    #scp "$RUNTAG".* $SCPUSER@$SCPHOST:$SCPPATH
+>>>>>>> 983416d502fd21b9364f78012e3abd308414c19f
     ;;
 
   "RSYNC")
@@ -101,6 +111,7 @@ case "$BACKUP_METHOD" in
     echo "encrypt archive"
     cd  ~/IOTstack/backups/archive
     gpg -c --passphrase-file /home/pi/user/pass --pinentry-mode loopback $RUNTAG.FullBackup.tar
+<<<<<<< HEAD
 #    ~/Dropbox-Uploader/dropbox_uploader.sh delete *.gpg 
 #   ~/Dropbox-Uploader/dropbox_uploader.sh -s upload *.gpg /
     rm $RUNTAG.FullBackup.tar
@@ -108,6 +119,13 @@ case "$BACKUP_METHOD" in
    cd ~/IOTstack/backups/archive_old
    ls -t1 ~/IOTstack/backups/archive_old* | tail -n +9 | xargs rm
 
+=======
+    ~/Dropbox-Uploader/dropbox_uploader.sh -s upload * /
+    mv -f ~/IOTstack/backups/archive/* /home/pi/IOTstack/backups/archive_old/
+    rm ~/IOTstack/backups/*backup*
+    #to change backups retained,  change below +8 to whatever you want (days retained +1)
+    ls -t1 ~/IOTstack/backups/archive_old* | tail -n +2 | sudo xargs rm -f
+>>>>>>> 983416d502fd21b9364f78012e3abd308414c19f
     
 ;;
   *)
